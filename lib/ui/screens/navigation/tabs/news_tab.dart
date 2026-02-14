@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:news_app/apis/api_manager.dart';
+import 'package:news_app/models/source_response/source.dart';
 import 'package:news_app/ui/screens/navigation/tabs/news_list_view.dart';
 import 'package:news_app/ui/utils/app_color.dart';
 import 'package:news_app/ui/utils/app_style.dart';
+import 'package:news_app/widget/_news.dart';
 
 class NewsTab extends StatefulWidget {
   const NewsTab({super.key});
@@ -26,18 +29,34 @@ class _NewsTabState extends State<NewsTab> {
       ),
       body: Column(
         children: [
-          DefaultTabController(
-            length: 3,
-            child: TabBar(
-              tabs: [
-                Tab(text: 'tab1'),
-                Tab(text: 'tab2'),
-                Tab(text: 'tab3'),
-              ],
-            ),
+          FutureBuilder(
+            future: ApiManager.loadSources(),
+            builder: (context, snapShot) {
+              if (snapShot.hasError) {
+                print('${snapShot.error.toString()}');
+                return ErrorWidgetNews(error: snapShot.error.toString());
+              } else if (snapShot.hasData) {
+                return buildTabBar(snapShot.data!);
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
           ),
           Expanded(child: NewsListView()),
         ],
+      ),
+    );
+  }
+
+  DefaultTabController buildTabBar(List<Source> sources) {
+    return DefaultTabController(
+      length: sources.length,
+      child: TabBar(
+        tabAlignment: TabAlignment.start,
+        isScrollable: true,
+        tabs: sources
+            .map((source) => Tab(child: Text(source.name ?? 'default')))
+            .toList(),
       ),
     );
   }
