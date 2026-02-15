@@ -14,49 +14,70 @@ class NewsTab extends StatefulWidget {
 }
 
 class _NewsTabState extends State<NewsTab> {
+  late Future<List<Source>> sourcesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    sourcesFuture = ApiManager.loadSources();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: buildDrawer(),
       appBar: AppBar(
-        title: Text('General'),
-        actions: [
+        title: const Text('General'),
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: EdgeInsets.only(right: 12),
             child: Icon(Icons.search, size: 32),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          FutureBuilder(
-            future: ApiManager.loadSources(),
-            builder: (context, snapShot) {
-              if (snapShot.hasError) {
-                print('${snapShot.error.toString()}');
-                return ErrorWidgetNews(error: snapShot.error.toString());
-              } else if (snapShot.hasData) {
-                return buildTabBar(snapShot.data!);
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
-            },
-          ),
-          Expanded(child: NewsListView()),
-        ],
+      body: FutureBuilder<List<Source>>(
+        future: sourcesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return ErrorWidgetNews(error: snapshot.error.toString());
+          }
+
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            return buildTabBar(snapshot.data!);
+          }
+
+          return const Center(child: Text("No Sources Found"));
+        },
       ),
     );
   }
 
-  DefaultTabController buildTabBar(List<Source> sources) {
+  Widget buildTabBar(List<Source> sources) {
     return DefaultTabController(
       length: sources.length,
-      child: TabBar(
-        tabAlignment: TabAlignment.start,
-        isScrollable: true,
-        tabs: sources
-            .map((source) => Tab(child: Text(source.name ?? 'default')))
-            .toList(),
+      child: Column(
+        children: [
+          TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: sources
+                .map((source) => Tab(text: source.name ?? "default"))
+                .toList(),
+          ),
+          SizedBox(height: 16),
+          Expanded(
+            child: TabBarView(
+              children: sources
+                  .map((source) => NewsListView(source: source))
+                  .toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -68,30 +89,25 @@ class _NewsTabState extends State<NewsTab> {
           Container(
             width: double.infinity,
             height: MediaQuery.of(context).size.height * .25,
-            decoration: BoxDecoration(color: AppColors.white),
+            decoration: const BoxDecoration(color: AppColors.white),
             child: Center(child: Text('News App', style: AppStyle.black24Bold)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.home_outlined,
-                        color: AppColors.white,
-                        size: 28,
-                      ),
-                      SizedBox(width: 4),
-                      Text('Go To Home', style: AppStyle.white20bold),
-                    ],
-                  ),
+                const SizedBox(height: 16),
+                Row(
+                  children: const [
+                    Icon(Icons.home_outlined, color: AppColors.white, size: 28),
+                    SizedBox(width: 4),
+                    Text('Go To Home', style: AppStyle.white20bold),
+                  ],
                 ),
-                Divider(color: AppColors.white),
-                SizedBox(height: 24),
-                Text('Theme'),
+                const SizedBox(height: 16),
+                const Divider(color: AppColors.white),
+                const SizedBox(height: 24),
+                const Text('Theme'),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -100,15 +116,14 @@ class _NewsTabState extends State<NewsTab> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: DropdownButton(
+                    child: DropdownButton<String>(
                       iconSize: 38,
-
                       isExpanded: true,
                       value: 'dark',
                       style: AppStyle.black14Medium.copyWith(fontSize: 18),
-                      items: [
+                      items: const [
                         DropdownMenuItem(value: 'light', child: Text('Light')),
-                        DropdownMenuItem(value: 'dark', child: Text('dark')),
+                        DropdownMenuItem(value: 'dark', child: Text('Dark')),
                       ],
                       onChanged: (value) {},
                     ),

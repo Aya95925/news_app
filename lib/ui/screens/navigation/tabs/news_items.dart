@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:news_app/ui/utils/app_assets.dart';
+import 'package:news_app/models/article_response/article.dart';
 import 'package:news_app/ui/utils/app_color.dart';
 import 'package:news_app/ui/utils/app_style.dart';
 
 class NewsItems extends StatelessWidget {
-  const NewsItems({super.key});
-
+  const NewsItems({super.key, required this.article});
+  final Article article;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      width: double.infinity,
-      decoration: BoxDecoration(border: Border.all(color: AppColors.black)),
-      child: Column(
-        children: [
-          Image.asset(
-            height: MediaQuery.of(context).size.height *.2,
-            width: double.infinity,
-            AppAssets.splashLight,
-            fit: BoxFit.cover,
-          ),
-          SizedBox(height: 10),
-          Text(
-            '40-year-old man falls 200 feet to his death while canyoneering at national park',
-            style: AppStyle.black16Bold,
-          ),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              Text('data', style: AppStyle.grey12Medium),
-              Spacer(),
-              Text('Aya Ahmed', style: AppStyle.grey12Medium),
-            ],
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
+      child: Container(
+        padding: EdgeInsets.all(8),
+        width: double.infinity,
+        decoration: BoxDecoration(border: Border.all(color: AppColors.black)),
+        child: Column(
+          children: [
+            Image.network(
+              height: MediaQuery.of(context).size.height * .2,
+              width: double.infinity,
+              article.urlToImage ?? '',
+              fit: BoxFit.cover,
+            ),
+            SizedBox(height: 10),
+            Text(article.title ?? '', style: AppStyle.black16Bold),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Text('by:${article.author}', style: AppStyle.grey12Medium),
+                Spacer(),
+                Text('${article.publishedAt}', style: AppStyle.grey12Medium),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

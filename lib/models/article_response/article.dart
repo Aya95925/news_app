@@ -1,8 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:news_app/models/source_response/source.dart';
-
-
-
 class Article extends Equatable {
 	final Source? source;
 	final String? author;
@@ -14,14 +11,14 @@ class Article extends Equatable {
 	final String? content;
 
 	const Article({
-	required	this.source, 
-	required	this.author, 
-	required	this.title, 
-	required	this.description, 
-	required	this.url, 
-	required	this.urlToImage, 
-	required	this.publishedAt, 
-	required	this.content, 
+		this.source, 
+		this.author, 
+		this.title, 
+		this.description, 
+		this.url, 
+		this.urlToImage, 
+		this.publishedAt, 
+		this.content, 
 	});
 
 	factory Article.fromJson(Map<String, dynamic> json) => Article(
