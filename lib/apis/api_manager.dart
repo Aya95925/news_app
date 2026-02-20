@@ -34,24 +34,34 @@ abstract final class ApiManager {
     }
   }
 
-  static Future<List<Article>> loadArticle(String sourceId) async {
+  static Future<List<Article>> loadArticle(
+    String sourceId, {
+    String? query,
+  }) async {
     try {
       final dio = Dio();
-      Response response = await dio.get(
-        '$baseUrl$articleEndPoint?apiKey=$apiKey&sources=$sourceId',
-      );
-       print(
+
+      
+      String url = '$baseUrl$articleEndPoint?apiKey=$apiKey&sources=$sourceId';
+      if (query != null && query.isNotEmpty) {
+        url += '&q=$query';
+      }
+
+      Response response = await dio.get(url);
+
+      print(
         'response.data: ${response.data} statusCode:${response.statusCode}',
       );
+
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         Map<String, dynamic> json = response.data;
         ArticleResponse articleResponse = ArticleResponse.fromJson(json);
-        return articleResponse.articles??[];
-      }else {
+        return articleResponse.articles ?? [];
+      } else {
         throw Exception('Server error: ${response.statusMessage}');
       }
-    } on Exception catch (e) {
-      print('Error: $e');
+    } catch (e) {
+     
       throw Exception('$e');
     }
   }

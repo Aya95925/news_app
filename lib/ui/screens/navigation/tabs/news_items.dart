@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/models/article_response/article.dart';
-import 'package:news_app/ui/utils/app_color.dart';
+
 import 'package:news_app/ui/utils/app_style.dart';
+import 'package:news_app/ui/utils/extension/context_extension.dart';
 
 class NewsItems extends StatelessWidget {
   const NewsItems({super.key, required this.article});
@@ -13,7 +14,10 @@ class NewsItems extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(8),
         width: double.infinity,
-        decoration: BoxDecoration(border: Border.all(color: AppColors.black)),
+        decoration: BoxDecoration(
+          border: Border.all(color: context.secondaryTheme),
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
           children: [
             Image.network(
@@ -23,11 +27,19 @@ class NewsItems extends StatelessWidget {
               fit: BoxFit.cover,
             ),
             SizedBox(height: 10),
-            Text(article.title ?? '', style: AppStyle.black16Bold),
+            Text(article.title ?? '', style: context.textTheme.labelLarge),
             SizedBox(height: 10),
+
             Row(
               children: [
-                Text('by:${article.author}', style: AppStyle.grey12Medium),
+                Expanded(
+                  child: Text(
+                    'by:${article.author}',
+                    style: AppStyle.grey12Medium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 Spacer(),
                 Text('${article.publishedAt}', style: AppStyle.grey12Medium),
               ],

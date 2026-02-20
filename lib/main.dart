@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/provider/theme_provider.dart';
-import 'package:news_app/ui/screens/navigation/tabs/news_tab.dart';
+
+import 'package:news_app/ui/screens/splash/splsh_screen.dart';
+
 import 'package:news_app/ui/utils/app_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +23,7 @@ class NewsApp extends StatelessWidget {
     ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: NewsTab(),
+      home: SplashScreen(),
       theme: AppTheme.lightTheme,
 
       darkTheme: AppTheme.darkTheme,

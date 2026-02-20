@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/apis/api_manager.dart';
 import 'package:news_app/models/source_response/source.dart';
+import 'package:news_app/provider/theme_provider.dart';
 import 'package:news_app/ui/screens/navigation/tabs/news_list_view.dart';
-import 'package:news_app/ui/utils/app_color.dart';
-import 'package:news_app/ui/utils/app_style.dart';
-import 'package:news_app/widget/_news.dart';
+import 'package:news_app/ui/utils/extension/context_extension.dart';
+import 'package:news_app/widget/build_drawer.dart';
+import 'package:news_app/widget/error_widget_news.dart';
+import 'package:provider/provider.dart';
 
 class NewsTab extends StatefulWidget {
   const NewsTab({super.key});
@@ -15,6 +17,10 @@ class NewsTab extends StatefulWidget {
 
 class _NewsTabState extends State<NewsTab> {
   late Future<List<Source>> sourcesFuture;
+  late ThemeProvider themeProvider;
+  bool isSearching = false;
+  TextEditingController searchController = TextEditingController();
+  String? searchQuery;
 
   @override
   void initState() {
@@ -25,17 +31,31 @@ class _NewsTabState extends State<NewsTab> {
 
   @override
   Widget build(BuildContext context) {
+    themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-      drawer: buildDrawer(),
+      drawer: isSearching ? null : const BuildDrawer(),
       appBar: AppBar(
-        title: const Text('General'),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.search, size: 32),
-          ),
-        ],
+        title: isSearching ? customTextField() : const Text('General'),
+        actions: isSearching
+            ? []
+            : [
+                Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: IconButton(
+                    onPressed: () {
+                      isSearching = true;
+                      setState(() {});
+                    },
+                    icon: Icon(
+                      Icons.search,
+                      size: 32,
+                      color: context.secondaryTheme,
+                    ),
+                  ),
+                ),
+              ],
       ),
+
       body: FutureBuilder<List<Source>>(
         future: sourcesFuture,
         builder: (context, snapshot) {
@@ -73,7 +93,10 @@ class _NewsTabState extends State<NewsTab> {
           Expanded(
             child: TabBarView(
               children: sources
-                  .map((source) => NewsListView(source: source))
+                  .map(
+                    (source) =>
+                        NewsListView(source: source, query: searchQuery),
+                  )
                   .toList(),
             ),
           ),
@@ -82,57 +105,31 @@ class _NewsTabState extends State<NewsTab> {
     );
   }
 
-  Drawer buildDrawer() {
-    return Drawer(
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height * .25,
-            decoration: const BoxDecoration(color: AppColors.white),
-            child: Center(child: Text('News App', style: AppStyle.black24Bold)),
+  Widget customTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: context.secondaryTheme),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(
+        child: TextFormField(
+          style: TextStyle(color: context.secondaryTheme),
+          controller: searchController,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: 'Search',
+
+            hintStyle: context.textTheme.titleMedium,
+            border: InputBorder.none,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
-                Row(
-                  children: const [
-                    Icon(Icons.home_outlined, color: AppColors.white, size: 28),
-                    SizedBox(width: 4),
-                    Text('Go To Home', style: AppStyle.white20bold),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(color: AppColors.white),
-                const SizedBox(height: 24),
-                const Text('Theme'),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.white),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: DropdownButton<String>(
-                      iconSize: 38,
-                      isExpanded: true,
-                      value: 'dark',
-                      style: AppStyle.black14Medium.copyWith(fontSize: 18),
-                      items: const [
-                        DropdownMenuItem(value: 'light', child: Text('Light')),
-                        DropdownMenuItem(value: 'dark', child: Text('Dark')),
-                      ],
-                      onChanged: (value) {},
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          onFieldSubmitted: (value) {
+            FocusScope.of(context).unfocus();
+            setState(() {
+              searchQuery = value;
+              isSearching = false;
+            });
+          },
+        ),
       ),
     );
   }

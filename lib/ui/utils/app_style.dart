@@ -17,11 +17,11 @@ abstract final class AppStyle {
     color: AppColors.white,
     fontWeight: FontWeight.w500,
   );
-  static const TextStyle white16bold = TextStyle(
-    fontSize: 16,
-    color: AppColors.white,
-    fontWeight: FontWeight.w700,
-  );
+  // static const TextStyle white16bold = TextStyle(
+  //   fontSize: 16,
+  //   color: AppColors.white,
+  //   fontWeight: FontWeight.w700,
+  // );
   static const TextStyle grey12Medium = TextStyle(
     fontSize: 12,
     color: AppColors.grey,
